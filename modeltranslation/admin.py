@@ -130,7 +130,15 @@ class TranslationBaseModelAdmin(BaseModelAdmin):
             for opt in option:
                 if opt in self.trans_opts.fields:
                     index = option_new.index(opt)
-                    option_new[index:index + 1] = get_translation_fields(opt)
+                    # Prevent adding of duplicates
+                    option_new.pop(index)
+                    fields_new = get_translation_fields(opt)
+                    for field_new in fields_new:
+                        try:
+                            index2 = option_new.index(field_new)
+                        except ValueError:
+                            option_new.insert(index, field_new)
+                            index += 1
                 elif isinstance(opt, (tuple, list)) and (
                         [o for o in opt if o in self.trans_opts.fields]):
                     index = option_new.index(opt)
